@@ -1,13 +1,24 @@
 package com.example.jerseystoreapp
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
+// Transaction data class
+data class Transaction(
+    val size: String,
+    val type: String,
+    val quantity: Int,
+    val totalCost: Int
+)
+
 class MainActivity : AppCompatActivity() {
+
+    // List to store all transactions in the session
+    private val transactions = mutableListOf<Transaction>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,9 +39,6 @@ class MainActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, sizes)
         spinnerSize.adapter = adapter
 
-
-
-
         // Default quantity display
         seekBarQuantity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -44,29 +52,39 @@ class MainActivity : AppCompatActivity() {
 
         // Purchase Button Logic
         btnPurchase.setOnClickListener {
-            val selectedSize = spinnerSize.selectedItem.toString()
             val selectedRadioId = radioGroupType.checkedRadioButtonId
-            val quantity = if (seekBarQuantity.progress == 0) 1 else seekBarQuantity.progress
-
-            // Validate selection
             if (selectedRadioId == -1) {
                 Toast.makeText(this, "Please select a jersey type", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val selectedType = findViewById<RadioButton>(selectedRadioId).text.toString()
-            val pricePerUnit = jerseyPrices[selectedSize] ?: 0
-            val totalCost = pricePerUnit * quantity
+            val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
+            btnPurchase.startAnimation(bounce)
 
-            // Display summary in a Toast message
-            val summary = "You purchased $quantity x $selectedType Jersey (Size: $selectedSize)\nTotal Cost: €$totalCost"
+            // Delay the dialog so animation can finish first
+            btnPurchase.postDelayed({
+                val selectedSize = spinnerSize.selectedItem.toString()
+                val selectedType = findViewById<RadioButton>(selectedRadioId).text.toString()
+                val quantity = if (seekBarQuantity.progress == 0) 1 else seekBarQuantity.progress
+                val pricePerUnit = jerseyPrices[selectedSize] ?: 0
+                val totalCost = pricePerUnit * quantity
 
-            AlertDialog.Builder(this)
-                .setTitle("Order Summary")
-                .setMessage(summary)
-                .setPositiveButton("OK", null)
-                .show()
+                // Save transaction to the session list
+                val transaction = Transaction(selectedSize, selectedType, quantity, totalCost)
+                transactions.add(transaction)
 
+                // 🔍 Log the current transaction count for debugging
+                Log.d("TransactionLog", "Total transactions this session: ${transactions.size}")
+
+                // Show order summary dialog
+                val summary = "You purchased $quantity x $selectedType Jersey (Size: $selectedSize)\nTotal Cost: €$totalCost"
+
+                AlertDialog.Builder(this)
+                    .setTitle("Order Summary")
+                    .setMessage(summary)
+                    .setPositiveButton("OK", null)
+                    .show()
+            }, 350) // 350ms delay for the bounce animation
         }
     }
 }
