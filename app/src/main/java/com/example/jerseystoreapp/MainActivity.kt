@@ -6,6 +6,7 @@ import android.widget.*
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 
 // Transaction data class
 data class Transaction(
@@ -23,6 +24,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val btnNextPage: Button = findViewById(R.id.btnNextPage)
+        btnNextPage.setOnClickListener {
+            val intent = Intent(this, JerseyListActivity::class.java)
+            startActivity(intent)
+        }
+
 
         // UI Elements
         val spinnerSize: Spinner = findViewById(R.id.spinnerSize)

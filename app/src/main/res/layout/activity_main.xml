@@ -120,5 +120,13 @@
             android:padding="12dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp" />
+
+        <Button
+            android:id="@+id/btnNextPage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go to Page 2"
+            android:layout_marginTop="24dp" />
+
     </LinearLayout>
 </ScrollView>
